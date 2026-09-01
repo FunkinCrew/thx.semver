@@ -179,9 +179,8 @@ abstract Version(SemVer) from SemVer to SemVer {
     return identifiers;
   }
 
-  static var SANITIZER = ~/[^0-9A-Za-z-]/g;
   static function sanitize(s : String) : String
-    return SANITIZER.replace(s, '');
+    return (~/[^0-9A-Za-z-]/g).replace(s, '');
 }
 
 enum Identifier {

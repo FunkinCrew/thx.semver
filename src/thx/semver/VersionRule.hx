@@ -143,10 +143,10 @@ abstract VersionRule(VersionComparator) from VersionComparator to VersionCompara
     return rule;
   }
 
-  static var IS_DIGITS = ~/^\d+$/;
   static function versionArray(re : EReg) {
     var arr:Array<Int> = [];
     var t:String;
+    var IS_DIGITS = ~/^\d+$/;
     for(i in 2...5) {
       t = re.matched(i);
       if(null != t && IS_DIGITS.match(t))
