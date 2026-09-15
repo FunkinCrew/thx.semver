@@ -14,64 +14,62 @@ abstract VersionRule(VersionComparator) from VersionComparator to VersionCompara
         p = (~/\s+/).split(comp);
         if(p.length == 1) {
           if(comp.length == 0) {
-            GreaterThanOrEqualVersion(Version.arrayToVersion([0,0,0]).withPre(VERSION.matched(5), VERSION.matched(6)));
+            var pre = VERSION.matched(5);
+            var build = VERSION.matched(6);
+            GreaterThanOrEqualVersion(Version.arrayToVersion([0,0,0]).withPre(pre != null ? pre : "", build != null ? build : ""));
           } else if(!VERSION.match(comp)) {
             throw 'invalid single pattern "$comp"';
           } else {
             // one term pattern
             var v:Array<Int> = versionArray(VERSION),
                 vf = v.concat([0, 0, 0]).slice(0, 3);
+            var pre = VERSION.matched(5);
+            var build = VERSION.matched(6);
+            var version = Version.arrayToVersion(vf).withPre(pre != null ? pre : "", build != null ? build : "");
             switch [VERSION.matched(1), v.length] {
               case ["v", 0], ["=", 0], ["", 0], [null, 0]:
-                GreaterThanOrEqualVersion(Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6)));
+                GreaterThanOrEqualVersion(version);
               case ["v", 1], ["=", 1], ["", 1], [null, 1]:
-                var version = Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6));
                 AndRule(
                   GreaterThanOrEqualVersion(version),
                   LessThanVersion(version.nextMajor())
                 );
               case ["v", 2], ["=", 2], ["", 2], [null, 2]:
-                var version = Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6));
                 AndRule(
                   GreaterThanOrEqualVersion(version),
                   LessThanVersion(version.nextMinor())
                 );
               case ["v", 3], ["=", 3], ["", 3], [null, 3]:
-                EqualVersion(Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6)));
+                EqualVersion(version);
               case [">", _]:
-                GreaterThanVersion(Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6)));
+                GreaterThanVersion(version);
               case [">=", _]:
-                GreaterThanOrEqualVersion(Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6)));
+                GreaterThanOrEqualVersion(version);
               case ["<", _]:
-                LessThanVersion(Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6)));
+                LessThanVersion(version);
               case ["<=", _]:
-                LessThanOrEqualVersion(Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6)));
+                LessThanOrEqualVersion(version);
               case ["~", 1]:
-                var version = Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6));
                 AndRule(
                   GreaterThanOrEqualVersion(version),
                   LessThanVersion(version.nextMajor())
                 );
               case ["~", 2], ["~", 3]:
-                var version = Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6));
                 AndRule(
                   GreaterThanOrEqualVersion(version),
                   LessThanVersion(version.nextMinor())
                 );
               case ["^", 1]:
-                var version = Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6));
                 AndRule(
                   GreaterThanOrEqualVersion(version),
                   LessThanVersion(version.nextMajor())
                 );
               case ["^", 2]:
-                var version = Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6));
                 AndRule(
                   GreaterThanOrEqualVersion(version),
                   LessThanVersion(version.major == 0 ? version.nextMinor() : version.nextMajor())
                 );
               case ["^", 3]:
-                var version = Version.arrayToVersion(vf).withPre(VERSION.matched(5), VERSION.matched(6));
                 AndRule(
                   GreaterThanOrEqualVersion(version),
                   LessThanVersion(version.major == 0 ? (version.minor == 0 ? version.nextPatch() : version.nextMinor()) : version.nextMajor())

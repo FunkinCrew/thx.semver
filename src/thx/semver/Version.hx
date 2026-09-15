@@ -138,31 +138,54 @@ abstract Version(SemVer) from SemVer to SemVer {
 
   static function parseIdentifier(s : String) : Identifier {
     var i = Std.parseInt(s);
+    #if js
+    if (Math.isNaN(i)) i = null;
+    #end
     return null == i ? StringId(s) : IntId(i);
   }
 
   static function equalsIdentifiers(a : Array<Identifier>, b : Array<Identifier>) {
     if(a.length != b.length)
       return false;
-    for(i in 0...a.length)
+    for(i in 0...a.length) {
       switch [a[i], b[i]] {
-        case [StringId(a), StringId(b)] if(a != b): return false;
-        case [IntId(a), IntId(b)] if(a != b): return false;
-        case _:
+        case [StringId(sa), StringId(sb)]:
+          #if js
+          var na = Std.parseFloat(sa);
+          var nb = Std.parseFloat(sb);
+          if (!Math.isNaN(na) && !Math.isNaN(nb) && na != nb) return false;
+          #end
+          if(sa != sb) return false;
+        case [IntId(na), IntId(nb)]:
+          if(na != nb) return false;
+        case _: return false;
       }
+    }
     return true;
   }
 
   static function greaterThanIdentifiers(a : Array<Identifier>, b : Array<Identifier>) {
-    for(i in 0...a.length)
-      switch [a[i], b[i]] {
-        case [StringId(a), StringId(b)] if(a == b): continue;
-        case [IntId(a), IntId(b)] if(a == b): continue;
-        case [StringId(a), StringId(b)] if(a > b): return true;
-        case [IntId(a), IntId(b)] if(a > b): return true;
+    for(i in 0...a.length) {
+      var ai = a[i], bi = b[i];
+      switch [ai, bi] {
+        case [StringId(sa), StringId(sb)]:
+          #if js
+          var na = Std.parseFloat(sa);
+          var nb = Std.parseFloat(sb);
+          if (!Math.isNaN(na) && !Math.isNaN(nb)) {
+            if (na == nb) continue;
+            return na > nb;
+          }
+          #end
+          if (sa == sb) continue;
+          return sa > sb;
+        case [IntId(na), IntId(nb)]:
+          if (na == nb) continue;
+          return na > nb;
         case [StringId(_), IntId(_)]: return true;
-        case _: return false;
+        case [IntId(_), StringId(_)]: return false;
       }
+    }
     return false;
   }
 
